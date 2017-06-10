@@ -1,7 +1,7 @@
 import { Component, render } from 'preact';
 import h from 'preact-hyperscript-h';
-import YouTubePlayer from 'youtube-player';
 import YouTubeIframeLoader from 'youtube-iframe';
+import VimeoPlayerAPI from '@vimeo/player';
 import * as utils from './utils';
 
 class App extends Component {
@@ -28,25 +28,38 @@ class App extends Component {
     const playerElement = this.getPlayerElement('youtube');
     YouTubeIframeLoader.load(YT => {
       this.youtubePlayerAPI = new YT.Player(playerElement);
-      this.youtubePlayerAPI.addEventListener('onStateChange', e => this.youtubePlayerOnStateChange(e));
+      this.youtubePlayerAPI.addEventListener('onStateChange', e => e.data === 0 && this.youtubePlayerOnEnd(e));
       console.log('Youtube player initialized');
     });
     playerElement.style.display = 'none';
     console.log('Youtube player initialized');
   }
 
+  vimeoPlayerInit() {
+    const playerElement = this.getPlayerElement('vimeo');
+    this.vimeoPlayerAPI = new VimeoPlayerAPI(playerElement, { id: 59777392 });
+    this.vimeoPlayerAPI.on('ended', e => this.vimeoPlayerOnEnd(e));
+    playerElement.style.display = 'none';
+    console.log('Vimeo player initialized');
+  }
+
   componentWillUpdate() {
     console.log('componentWillUpdate');
   }
 
-  youtubePlayerOnStateChange(e) {
-    // console.log(`e.data:`, e.data);
-    if (e.data === 0) {
-      const playerElement = this.getPlayerElement('youtube');
-      playerElement.style.display = 'none';
-      this.setState({ playing: false });
-      this.playNext();
-    }
+  playerOnEnd(player) {
+    const element = this.getPlayerElement(player);
+    element.style.display = 'none';
+    this.setState({ playing: false });
+    this.playNext();
+  }
+
+  youtubePlayerOnEnd(e) {
+    this.playerOnEnd('youtube');
+  }
+
+  vimeoPlayerOnEnd(e) {
+    this.playerOnEnd('vimeo');
   }
 
   playNext() {
@@ -112,6 +125,18 @@ class App extends Component {
     });
     const playerElement = this.getPlayerElement('youtube');
     playerElement.style.display = 'block';
+  }
+
+  vimeoPlayerPlayVideo(videoId) {
+    this.vimeoPlayerAPI.loadVideo(videoId).then(() => {
+      this.vimeoPlayerAPI.play();
+      this.setState({
+        playing: true,
+        status: 'Playing: ' + videoId
+      });
+      const playerElement = this.getPlayerElement('vimeo');
+      playerElement.style.display = 'block';
+    });
   }
 
   render() {

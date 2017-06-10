@@ -7,12 +7,13 @@
   },
   "repository": "freethlua/01bbcf76fb20c347f1-multi-player",
   "dependencies": {
+    "@vimeo/player": "^2.1.0",
     "get-youtube-id": "^1.0.0",
     "preact": "^8.1.0",
     "preact-hyperscript": "^0.7.1",
     "preact-hyperscript-h": "^0.1.1",
-    "youtube-iframe": "^1.0.3",
-    "youtube-player": "^5.4.0"
+    "vimeo-regex": "^1.0.0",
+    "youtube-iframe": "^1.0.3"
   },
   "devDependencies": {
     "webpack": "^2.6.1",
