@@ -1,0 +1,21 @@
+{
+  "name": "01bbcf76fb20c347f1-multi-player",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "webpack",
+    "dev": "webpack-dev-server --inline --hot"
+  },
+  "repository": "freethlua/01bbcf76fb20c347f1-multi-player",
+  "dependencies": {
+    "get-youtube-id": "^1.0.0",
+    "preact": "^8.1.0",
+    "preact-hyperscript": "^0.7.1",
+    "preact-hyperscript-h": "^0.1.1",
+    "youtube-iframe": "^1.0.3",
+    "youtube-player": "^5.4.0"
+  },
+  "devDependencies": {
+    "webpack": "^2.6.1",
+    "webpack-dev-server": "^2.4.5"
+  }
+}
