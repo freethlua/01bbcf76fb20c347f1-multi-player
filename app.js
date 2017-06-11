@@ -29,6 +29,7 @@ class App extends Component {
     YouTubeIframeLoader.load(YT => {
       this.youtubePlayerAPI = new YT.Player(playerElement);
       this.youtubePlayerAPI.addEventListener('onStateChange', e => e.data === 0 && this.youtubePlayerOnEnd(e));
+      this.setState({ playersReady: (this.state.playersReady || 0) + 1 });
       console.log('Youtube player initialized');
     });
     playerElement.style.display = 'none';
@@ -39,6 +40,7 @@ class App extends Component {
     const playerElement = this.getPlayerElement('vimeo');
     this.vimeoPlayerAPI = new VimeoPlayerAPI(playerElement, { id: 59777392 });
     this.vimeoPlayerAPI.on('ended', e => this.vimeoPlayerOnEnd(e));
+    this.vimeoPlayerAPI.on('loaded', e => this.vimeoPlayerOnReady(e));
     playerElement.style.display = 'none';
     console.log('Vimeo player initialized');
   }
@@ -61,7 +63,9 @@ class App extends Component {
   playerOnEnd(player) {
     const element = this.getPlayerElement(player);
     element.style.display = 'none';
-    this.setState({ playing: false });
+    this.setState({
+      playing: false
+    });
     this.playNext();
   }
 
@@ -69,16 +73,20 @@ class App extends Component {
     this.playerOnEnd('youtube');
   }
 
+  vimeoPlayerOnReady(e) {
+    this.setState({ playersReady: (this.state.playersReady || 0) + 1 });
+  }
   vimeoPlayerOnEnd(e) {
     this.playerOnEnd('vimeo');
   }
 
-  dailymotionPlayerOnEnd(e) {
-    this.playerOnEnd('dailymotion');
-  }
   dailymotionPlayerOnReady(e) {
     const playerElement = this.getPlayerElement('dailymotion');
     playerElement.style.display = 'none';
+    this.setState({ playersReady: (this.state.playersReady || 0) + 1 });
+  }
+  dailymotionPlayerOnEnd(e) {
+    this.playerOnEnd('dailymotion');
   }
 
   playNext() {
@@ -88,6 +96,9 @@ class App extends Component {
     if (!this.state.urls || !this.state.urls.length) {
       throw new Error('Need a state.urls');
     }
+    this.setState({
+      status: 'Loading next...',
+    });
     let currentPlayingCaptured = false;
     let nextQueued = false;
     for (let i = 0; i < this.state.urls.length; i++) {
@@ -96,7 +107,10 @@ class App extends Component {
         if (url) {
           const potentialCurrentUrl = utils.processUrl(url);
           if (!potentialCurrentUrl) {
-            this.setState({ error: 'Malformed URL: ' + url });
+            this.setState({
+              error: 'Malformed URL: ' + url,
+              currentUrl: null,
+            });
           } else {
             this.setState({ currentUrl: url });
             this[potentialCurrentUrl.player + 'PlayerPlayVideo'](potentialCurrentUrl.url);
@@ -113,18 +127,26 @@ class App extends Component {
   }
 
   play() {
-    this.setState({ error: null });
+    this.setState({
+      error: null,
+      status: 'Loading playlist...',
+    });
     if (this.state.playing) {
-
+      this.setState({ error: 'this.state.playing' });
+      console.log(`this.state:`, this.state);
     } else {
       if (this.state.currentUrl) {
-
+        this.setState({ error: 'this.state.currentUrl' });
+        console.log(`this.state:`, this.state);
       } else {
         if (this.state.urls && this.state.urls.length) {
           const url = this.state.urls[0];
           const potentialCurrentUrl = utils.processUrl(url);
           if (!potentialCurrentUrl) {
-            this.setState({ error: 'Malformed URL: ' + url });
+            this.setState({
+              error: 'Malformed URL: ' + url,
+              currentUrl: null,
+            });
           } else {
             this.setState({ currentUrl: url });
             this[potentialCurrentUrl.player + 'PlayerPlayVideo'](potentialCurrentUrl.url);
@@ -171,7 +193,9 @@ class App extends Component {
 
   render() {
     return h.div([
-      h.form({ onsubmit: e => this.play() }, [
+      (this.state.playersReady || 0) < Object.keys(utils.matchers).length
+      ? 'Loading players...'
+      : h.form({ onsubmit: e => this.play() }, [
         h.textarea({
           placeholder: 'Enter URLs here',
           oninput: e => this.setState({
@@ -190,8 +214,8 @@ class App extends Component {
         h.button('Play'),
       ]),
       h.pre(JSON.stringify(this.state.urls, null, 2)),
-      this.state.error && h.pre('Error: ' + this.state.error),
       this.state.status && h.pre('Status: ' + this.state.status),
+      this.state.error && h.pre('Error: ' + this.state.error),
     ]);
   }
 }
