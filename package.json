@@ -9,6 +9,7 @@
   "dependencies": {
     "@vimeo/player": "^2.1.0",
     "get-youtube-id": "^1.0.0",
+    "js-video-url-parser": "^0.2.3",
     "preact": "^8.1.0",
     "preact-hyperscript": "^0.7.1",
     "preact-hyperscript-h": "^0.1.1",

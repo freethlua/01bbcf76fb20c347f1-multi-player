@@ -1,5 +1,6 @@
 import getYoutubeId from 'get-youtube-id';
 import vimeoRegex from 'vimeo-regex';
+import urlParser from 'js-video-url-parser';
 
 export const matchers = {
   youtube: {
@@ -9,7 +10,11 @@ export const matchers = {
   vimeo: {
     matcher: /vimeo.com/,
     process: url => vimeoRegex().exec(url)[4],
-  }
+  },
+  dailymotion: {
+    matcher: /dailymotion.com/,
+    process: url => urlParser.parse(url).id,
+  },
 }
 
 

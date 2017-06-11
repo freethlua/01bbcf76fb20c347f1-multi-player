@@ -43,6 +43,17 @@ class App extends Component {
     console.log('Vimeo player initialized');
   }
 
+  dailymotionPlayerInit() {
+    const playerElement = this.getPlayerElement('dailymotion');
+    this.dailymotionPlayerAPI = DM.player(playerElement, {
+      // video: 'xwr14q',
+    });
+    this.dailymotionPlayerAPI.addEventListener('video_end', e => this.dailymotionPlayerOnEnd(e));
+    this.dailymotionPlayerAPI.addEventListener('apiready', e => this.dailymotionPlayerOnReady(e));
+    playerElement.style.display = 'none';
+    console.log('Dailymotion player initialized');
+  }
+
   componentWillUpdate() {
     console.log('componentWillUpdate');
   }
@@ -60,6 +71,14 @@ class App extends Component {
 
   vimeoPlayerOnEnd(e) {
     this.playerOnEnd('vimeo');
+  }
+
+  dailymotionPlayerOnEnd(e) {
+    this.playerOnEnd('dailymotion');
+  }
+  dailymotionPlayerOnReady(e) {
+    const playerElement = this.getPlayerElement('dailymotion');
+    playerElement.style.display = 'none';
   }
 
   playNext() {
@@ -137,6 +156,17 @@ class App extends Component {
       const playerElement = this.getPlayerElement('vimeo');
       playerElement.style.display = 'block';
     });
+  }
+
+  dailymotionPlayerPlayVideo(videoId) {
+    this.dailymotionPlayerAPI.load(videoId);
+    this.dailymotionPlayerAPI.play();
+    this.setState({
+      playing: true,
+      status: 'Playing: ' + videoId
+    });
+    const playerElement = this.getPlayerElement('dailymotion');
+    playerElement.style.display = 'block';
   }
 
   render() {
